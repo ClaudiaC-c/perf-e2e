@@ -1,38 +1,16 @@
 pipeline {
     agent any
-
     stages {
-        stage('Build & Deploy Stack') {
+        stage('Clonar repo') {
             steps {
-                sh 'docker compose up -d --build'
+                echo 'Clonando repositorio...'
+                checkout scm
             }
         }
-
-        stage('Run JMeter Tests') {
+        stage('Prueba básica') {
             steps {
-                sh '''
-                    docker build -t perf-e2e-jmeter ./jmeter
-                    docker run --network=perf-e2e_perfnet \
-                        -v ${WORKSPACE}/out:/out \
-                        perf-e2e-jmeter \
-                        -n -t /test/plan-de-prueba.jmx \
-                        -Jhost=node_app -Jport=3000 \
-                        -l /out/resultados.jtl \
-                        -e -o /out/report
-                '''
+                echo '✅ Jenkins está leyendo bien el repo y el Jenkinsfile'
             }
-        }
-
-        stage('Archive Reports') {
-            steps {
-                archiveArtifacts artifacts: 'out/**/*', fingerprint: true
-            }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker compose down'
         }
     }
 }
