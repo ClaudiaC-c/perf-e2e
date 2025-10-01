@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  app:
+    build: ./app
+    container_name: node_app
+    ports:
+      - "3000:3000"
+    networks:
+      - perfnet
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+    networks:
+      - perfnet
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - perfnet
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    networks:
+      - perfnet
+
+networks:
+  perfnet:
+
+volumes:
+  jenkins_data:
